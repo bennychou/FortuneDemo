@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:holo="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+	<LinearLayout
+	    android:id="@+id/linear_picker"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal" >
+	    
+	    <RelativeLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1" >
+	        
+	        <org.holoeverywhere.widget.NumberPicker
+				android:id="@+id/number_picker_hour"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerInParent="true" />
+	        
+	        <TextView
+	            android:id="@+id/text_hour"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_below="@+id/number_picker_hour"
+	            android:layout_centerHorizontal="true"
+	            android:text="Hour" />
+	        
+	    </RelativeLayout>
+	    
+	    <RelativeLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1" >
+	        
+	        <org.holoeverywhere.widget.NumberPicker
+				android:id="@+id/number_picker_minute"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerInParent="true" />
+	        
+	        <TextView
+	            android:id="@+id/text_minute"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_below="@+id/number_picker_minute"
+	            android:layout_centerHorizontal="true"
+	            android:text="Minute" />
+	        
+	    </RelativeLayout>
+	    
+	    <RelativeLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1" >
+	        
+	        <org.holoeverywhere.widget.NumberPicker
+				android:id="@+id/number_picker_second"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerInParent="true" />
+	        
+	        <TextView
+	            android:id="@+id/text_second"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_below="@+id/number_picker_second"
+	            android:layout_centerHorizontal="true"
+	            android:text="Second" />
+	        
+	    </RelativeLayout>
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+		android:id="@+id/linear_button"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal" >
+	    
+	    <Button
+	        android:id="@+id/button_reset"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:text="Reset" />
+	    
+	    <Button
+	        android:id="@+id/button_start_stop"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:text="Start" />
+	    
+	</LinearLayout>
+</RelativeLayout>

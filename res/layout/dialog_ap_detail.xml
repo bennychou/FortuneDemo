@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>    
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:holo="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroller"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        
+        <TextView
+            android:id="@+id/text_status_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Status"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/text_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:textSize="18dp"
+            android:visibility="gone" />
+        
+        <View
+            android:id="@+id/line_status"
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"
+    		android:visibility="gone" />
+        
+        <TextView
+            android:id="@+id/text_ip_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="IP address"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/text_ip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:textSize="18dp"
+            android:visibility="gone" />
+        
+        <View
+            android:id="@+id/line_ip"
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"
+    		android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Signal strength" />
+
+        <TextView
+            android:id="@+id/text_strength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:textSize="18dp" />
+        
+        <View
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Security" />
+
+        <TextView
+            android:id="@+id/text_security"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:textSize="18dp" />
+        
+        <View
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"/>
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Mac address" />
+
+        <TextView
+            android:id="@+id/text_mac_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:textSize="18dp" />
+        
+        <View
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"/>
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Channel" />
+
+        <TextView
+            android:id="@+id/text_channel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:textSize="18dp" />
+        
+        <View
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:id="@+id/text_password_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Password" />
+
+        <EditText
+	        android:id="@+id/edit_password"
+	        android:layout_width="250dp"
+	        android:layout_height="wrap_content"
+	        android:singleLine="true"
+			android:layout_gravity="center_horizontal"
+			android:inputType="textPassword"
+			android:padding="5dp" />
+        
+        <CheckBox
+        	android:id="@+id/cbx_show"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_alignParentLeft="true"
+        	android:checked="true"
+        	android:text="Show" />
+        
+        <View
+            android:id="@+id/line_password"
+    		android:layout_width="match_parent"
+    		android:layout_height="1dp"
+    		android:padding="2dp"
+    		android:background="@android:color/darker_gray"/>
+        
+        <TextView
+            android:id="@+id/text_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:textColor="#7B7B7B"
+            android:text="Key index"
+            android:visibility="gone" />
+        
+        <org.holoeverywhere.widget.Spinner
+            android:id="@+id/spinner_key"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:entries="@array/wep_key"
+            android:padding="5dp"
+            android:drawSelectorOnTop="true"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</ScrollView>
