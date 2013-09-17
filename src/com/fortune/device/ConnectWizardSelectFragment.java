@@ -128,6 +128,9 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				activity.configure(
+						listAPStatus.get(spinnerSSID.getSelectedItemPosition()),
+						editPassword.getText().toString());
 				activity.setCurrentItem(ConnectWizardActivity.CONFIGURING);
 			}
 		});

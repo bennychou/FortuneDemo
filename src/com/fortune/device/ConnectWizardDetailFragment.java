@@ -108,7 +108,7 @@ public class ConnectWizardDetailFragment extends SherlockFragment {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				activity.connect(editPassword.getText().toString());
-				activity.setCurrentItem(1);
+				activity.setCurrentItem(ConnectWizardActivity.CONNECTING);
 			}
 		});
 		

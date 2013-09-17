@@ -1,5 +1,12 @@
 package com.fortune.device;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -7,6 +14,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
+import android.view.View;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -36,6 +45,8 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 	public static final int CONNECTING = 1;
 	public static final int SELECT = 2;
 	public static final int CONFIGURING = 3;
+	
+	final String TAG = "ConnectWizardActivity";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +104,71 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 	
 	public void connect(String password) {
 		connection.connect(apStatus.getSSID(), apStatus.getBSSID(), password);
+	}
+	
+	public void configure(APStatus apStatus, String password) {
+//		String SSID = apStatus.getSSID();
+//		String SSIDLength = Integer.toString(SSID.length());
+//		String passwordLength = Integer.toString(password.length());
+//		if (SSIDLength.length() < 4) {
+//			for (int i = 0; i < 4-SSIDLength.length(); i++) {
+//				SSIDLength += "0";
+//			}
+//		}
+//		
+//		if (SSID.length() < 32) {
+//			for (int i = 0; i < 32-SSIDLength.length(); i++) {
+//				SSID += "0";
+//			}
+//		}
+//		
+//		if (passwordLength.length() < 4) {
+//			for (int i = 0; i < 4-passwordLength.length(); i++) {
+//				passwordLength += "0";
+//			}
+//		}
+//		
+//		if (password.length() < 32) {
+//			for (int i = 0; i < 32-password.length(); i++) {
+//				password += "0";
+//			}
+//		}
+		
+		try {
+			Socket socket = new Socket("192.168.1.1", 9999);
+
+			// -----發送socket--------
+			PrintWriter out = new PrintWriter(new BufferedWriter(
+					new OutputStreamWriter(socket.getOutputStream())),
+					true);
+			
+			Log.i(TAG, apStatus.getSSID()+
+					"2"+
+					"1"+
+					password);
+			
+			out.println(
+					apStatus.getSSID()+
+					"2"+
+					"1"+
+					password);
+			// -----/發送socket/--------
+
+			// -----接收socket--------
+//			BufferedReader br = new BufferedReader(
+//					new InputStreamReader(socket.getInputStream()));
+//
+//			char[] m = new char[100];
+//			br.read(m);
+//			String rec_msg = new String(m);
+//
+//			Log.i(TAG, rec_msg);
+			// -----/接收socket/--------
+
+		} catch (Exception e) {
+			Log.e("TCP", "S: Error PrintWrite", e);
+		} finally {
+		}
 	}
 	
 	public void unregisterReceiver() {

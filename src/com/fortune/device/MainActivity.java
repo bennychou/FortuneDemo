@@ -23,8 +23,8 @@ public class MainActivity extends Activity {
 	
 	WifiConnection connection;
 	
-	public static final String DEVICE_KEYWORD = "FTS_";
-	public static final String DEVICE_PASSWORD = "27992589";
+	public static final String DEVICE_KEYWORD = "IOT_Fortune_";
+	public static final String DEVICE_PASSWORD = "1234567890";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
