@@ -7,9 +7,16 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.MulticastLock;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,6 +30,7 @@ import com.fortune.wifi.APStatus;
 import com.fortune.wifi.WifiConnection;
 import com.viewpagerindicator.LinePageIndicator;
 
+@SuppressLint("NewApi")
 public class ConnectWizardActivity extends SherlockFragmentActivity {
 	APStatus apStatus;
 	
@@ -48,6 +56,8 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 	
 	final String TAG = "ConnectWizardActivity";
 	
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -69,6 +79,16 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 		indicator.setViewPager(pager);
 		
 		indicator.setOnPageChangeListener(pageChangeListener);
+		
+		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		MulticastLock multicastlock = wifiManager
+				.createMulticastLock("test-udp");
+		multicastlock.acquire();
+		
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		    StrictMode.setThreadPolicy(policy);
+		}
 	}
 	
 	final int switchPage = 0;
@@ -135,23 +155,23 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 //		}
 		
 		try {
-			Socket socket = new Socket("192.168.1.1", 9999);
+			Socket socket = new Socket("192.168.1.1", 7007);
 
 			// -----發送socket--------
 			PrintWriter out = new PrintWriter(new BufferedWriter(
 					new OutputStreamWriter(socket.getOutputStream())),
 					true);
 			
-			Log.i(TAG, apStatus.getSSID()+
-					"2"+
-					"1"+
+			Log.i(TAG, apStatus.getSSID()+ "\n" +
+					"2\n"+
+					"1\n"+
 					password);
 			
 			out.println(
-					apStatus.getSSID()+
-					"2"+
-					"1"+
-					password);
+					apStatus.getSSID()+ "\n" +
+							"2\n"+
+							"1\n"+
+							password);
 			// -----/發送socket/--------
 
 			// -----接收socket--------
