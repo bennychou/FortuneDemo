@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +49,8 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 	
 	TableRow tableRowWep;
 	TableRow tableRowPassword;
+	
+	Handler handler;
 	public static ConnectWizardSelectFragment newInstance() {
 		ConnectWizardSelectFragment cwsf = new ConnectWizardSelectFragment();
 
@@ -128,9 +131,20 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				activity.configure(
-						listAPStatus.get(spinnerSSID.getSelectedItemPosition()),
-						editPassword.getText().toString());
+				Runnable sendTCPRunnable = new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						activity.configure(
+								listAPStatus.get(spinnerSSID.getSelectedItemPosition()),
+								editPassword.getText().toString());
+					}
+				};
+				
+				handler = new Handler();
+				handler.post(sendTCPRunnable);
+				
 				activity.setCurrentItem(ConnectWizardActivity.CONFIGURING);
 			}
 		});

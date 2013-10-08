@@ -143,6 +143,9 @@ public class ScanFragment extends SherlockFragment {
 				adapter = new ListAdapter(this.listAPStatus);
 				listView.setAdapter(adapter);
 				listView.setOnItemClickListener(itemClickListener);
+				
+				textNoDevice.setVisibility(View.GONE);
+				listView.setVisibility(View.VISIBLE);
 			}
 		} else {
 			this.listAPStatus = listAPStatus;
@@ -154,6 +157,9 @@ public class ScanFragment extends SherlockFragment {
 			} else {
 				adapter = new ListAdapter(this.listAPStatus);
 				adapter.notifyDataSetChanged();
+				
+				textNoDevice.setVisibility(View.GONE);
+				listView.setVisibility(View.VISIBLE);
 			}
 		}
 	}

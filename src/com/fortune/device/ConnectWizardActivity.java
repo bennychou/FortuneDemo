@@ -2,6 +2,7 @@ package com.fortune.device;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -126,36 +127,10 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 		connection.connect(apStatus.getSSID(), apStatus.getBSSID(), password);
 	}
 	
-	public void configure(APStatus apStatus, String password) {
-//		String SSID = apStatus.getSSID();
-//		String SSIDLength = Integer.toString(SSID.length());
-//		String passwordLength = Integer.toString(password.length());
-//		if (SSIDLength.length() < 4) {
-//			for (int i = 0; i < 4-SSIDLength.length(); i++) {
-//				SSIDLength += "0";
-//			}
-//		}
-//		
-//		if (SSID.length() < 32) {
-//			for (int i = 0; i < 32-SSIDLength.length(); i++) {
-//				SSID += "0";
-//			}
-//		}
-//		
-//		if (passwordLength.length() < 4) {
-//			for (int i = 0; i < 4-passwordLength.length(); i++) {
-//				passwordLength += "0";
-//			}
-//		}
-//		
-//		if (password.length() < 32) {
-//			for (int i = 0; i < 32-password.length(); i++) {
-//				password += "0";
-//			}
-//		}
-		
+	public void configure(APStatus apStatus, String password) {	
+		Socket socket = null;
 		try {
-			Socket socket = new Socket("192.168.1.1", 7007);
+			socket = new Socket("192.168.1.1", 7008);
 
 			// -----µo°esocket--------
 			PrintWriter out = new PrintWriter(new BufferedWriter(
@@ -188,6 +163,13 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 		} catch (Exception e) {
 			Log.e("TCP", "S: Error PrintWrite", e);
 		} finally {
+			if (socket != null)
+				try {
+					socket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 	}
 	
@@ -300,6 +282,14 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 				
 				if (apStatus.getBSSID().equals(connection.getBSSID())) {
 					// successed
+					
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 					isRunning = false;
 					unregisterReceiver();
 					

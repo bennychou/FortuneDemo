@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,8 @@ public class DevicesFragment extends SherlockFragment {
 	
 	ListView listView;
 	ListAdapter adapter;
+	
+	final String TAG = "DevicesFragment";
 	
 	public static DevicesFragment newInstance() {
 		DevicesFragment df = new DevicesFragment();
@@ -88,17 +91,49 @@ public class DevicesFragment extends SherlockFragment {
 		}
 	}
 	
-	public void refreshDevices(APStatus apStatus) {
-		listDeviceStatus.add(new DeviceStatus(apStatus.getSSID(), 
-				apStatus.getBSSID(), apStatus.getPassword(), 1));
-		
-		adapter = new ListAdapter(listDeviceStatus);
-		listView.setAdapter(adapter);
-		listView.setOnItemClickListener(itemClickListener);
-		
-		progressBar.setVisibility(View.GONE);
-		textNoDevice.setVisibility(View.GONE);
-		listView.setVisibility(View.VISIBLE);
+	public void refreshDevices(APStatus apStatus, DeviceStatus deviceStatus, boolean isAdd) {
+		if (isAdd) {
+			listDeviceStatus.add(new DeviceStatus(apStatus.getSSID(), 
+					apStatus.getBSSID(), apStatus.getPassword(), null, -1, -1, -1, -1));
+			
+			adapter = new ListAdapter(listDeviceStatus);
+			listView.setAdapter(adapter);
+			listView.setOnItemClickListener(itemClickListener);
+			
+			progressBar.setVisibility(View.GONE);
+			textNoDevice.setVisibility(View.GONE);
+			listView.setVisibility(View.VISIBLE);
+		} else {
+			for (int i = 0; i < listDeviceStatus.size(); i++) {
+				DeviceStatus oldDeviceStatus = listDeviceStatus.get(i);
+				
+				Log.i(TAG, oldDeviceStatus.getBSSID());
+				
+				if (oldDeviceStatus.getBSSID().equals(deviceStatus.getBSSID())) {
+					oldDeviceStatus.setIP(deviceStatus.getIP());
+					oldDeviceStatus.setStatus(deviceStatus.getStatus());
+					oldDeviceStatus.setVolt(deviceStatus.getVolt());
+					oldDeviceStatus.setAmp(deviceStatus.getAmp());
+					
+					listDeviceStatus.set(i, oldDeviceStatus);
+					
+					if (getSherlockActivity() == null) {
+						Log.e(TAG, "activity is null");
+						return;
+					}
+					
+					getSherlockActivity().runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							adapter.notifyDataSetChanged();
+						}
+					});
+					
+				}
+			}
+		}
 	}
 	
 	OnItemClickListener itemClickListener = new OnItemClickListener() {
@@ -109,6 +144,7 @@ public class DevicesFragment extends SherlockFragment {
 			// TODO Auto-generated method stub
 			Intent infoIntent = new Intent();
 			infoIntent.setClass(getSherlockActivity(), DevicesInfoActivity.class);
+			infoIntent.putExtra("DeviceStatus", listDeviceStatus.get(position));
 			
 			startActivity(infoIntent);
 		}
@@ -151,6 +187,7 @@ public class DevicesFragment extends SherlockFragment {
 				convertView = myInflater.inflate(R.layout.list_devices_item, null);
 				
 				holder.textName = (TextView) convertView.findViewById(R.id.text_name);
+				holder.imageStatus = (ImageView) convertView.findViewById(R.id.image_status);
 
 				convertView.setTag(holder);
 			} else {
@@ -159,11 +196,20 @@ public class DevicesFragment extends SherlockFragment {
 			
 			holder.textName.setText(listDeviceStatus.get(position).getSSID());
 			
+			if (listDeviceStatus.get(position).getStatus() < 0) {
+				holder.imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_configured));
+			} else if (listDeviceStatus.get(position).getStatus() == 0) {
+				holder.imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_off));
+			} else if (listDeviceStatus.get(position).getStatus() == 1) {
+				holder.imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_on));
+			}
+			
 			return convertView;
 		}
 		
 		public class ViewHolder {
 			TextView textName;
+			ImageView imageStatus;
 		}
 		
 	}
