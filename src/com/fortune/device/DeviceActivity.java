@@ -3,6 +3,7 @@ package com.fortune.device;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 
@@ -231,6 +232,12 @@ public class DeviceActivity extends SherlockFragmentActivity {
 		return listDeviceStatus;
 	}
 	
+	public void removeDevice(DeviceStatus deviceStatus) {
+		SQLiteDatabase db = deviceDBHelper.getWritableDatabase();
+        db.delete(DeviceDBHelper.TableName, 
+        		DeviceDBHelper.ColumnBSSID+"=?", new String[]{deviceStatus.getBSSID()});
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 		// TODO Auto-generated method stub
@@ -270,7 +277,9 @@ public class DeviceActivity extends SherlockFragmentActivity {
 				DatagramPacket dp = new DatagramPacket(msg, msg.length);
 				DatagramSocket ds = null;
 				try {
-					ds = new DatagramSocket(6666);
+					ds = new DatagramSocket(null);
+					ds.setReuseAddress(true);
+					ds.bind(new InetSocketAddress(udpPort));
 					// disable timeout for testing
 					ds.setSoTimeout(5000);
 					ds.receive(dp);
@@ -313,9 +322,33 @@ public class DeviceActivity extends SherlockFragmentActivity {
 				} catch (SocketException e) {
 //					e.printStackTrace();
 					Log.e(TAG, "UDP socket error: "+e.toString());
+					
+					DeviceStatus deviceStatus = new DeviceStatus(null, 
+							"", null, "", 0.0f, 0.0f, -1, -1);
+					
+					Message message = new Message();
+					message.what = refreshDeviceStatus;
+					
+					Bundle data = new Bundle();
+					data.putSerializable("DeviceStatus", deviceStatus);
+					
+					message.setData(data);
+					mHandler.handleMessage(message);
 				} catch (IOException e) {
 //					e.printStackTrace();
 					Log.e(TAG, "UDP IO error: "+e.toString());
+					
+					DeviceStatus deviceStatus = new DeviceStatus(null, 
+							"", null, "", 0.0f, 0.0f, -1, -1);
+					
+					Message message = new Message();
+					message.what = refreshDeviceStatus;
+					
+					Bundle data = new Bundle();
+					data.putSerializable("DeviceStatus", deviceStatus);
+					
+					message.setData(data);
+					mHandler.handleMessage(message);
 				} finally {
 					if (ds != null) {
 						ds.close();

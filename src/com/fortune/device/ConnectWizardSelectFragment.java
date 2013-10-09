@@ -142,8 +142,8 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 					}
 				};
 				
-				handler = new Handler();
-				handler.post(sendTCPRunnable);
+				Thread thread = new Thread(sendTCPRunnable);
+				thread.start();
 				
 				activity.setCurrentItem(ConnectWizardActivity.CONFIGURING);
 			}

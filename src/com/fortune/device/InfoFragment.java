@@ -71,6 +71,7 @@ public class InfoFragment extends SherlockFragment {
 		
 		isSwitchByUser = false;
 		isSwitchByCode = false;
+		handler = new Handler();
 		/* get arguments */
 		deviceStatus = (DeviceStatus) getArguments().getSerializable("DeviceStatus");
 	}
@@ -131,7 +132,6 @@ public class InfoFragment extends SherlockFragment {
 				}
 				
 				switchStatus.setEnabled(false);
-				handler = new Handler();
 				isSwitchByUser = true;
 				
 				Runnable sendTCPRunnable = new Runnable() {
@@ -149,14 +149,15 @@ public class InfoFragment extends SherlockFragment {
 					}
 				};
 				
-				handler.post(sendTCPRunnable);
+				Thread thread = new Thread(sendTCPRunnable);
+				thread.start();
 			}
 		});
 	}
 	
 	int countFailed = 0;
 	public void updateDeviceStatus(final DeviceStatus deviceStatus) {
-		if (deviceStatus.getBSSID().equals(this.deviceStatus.getBSSID())) {
+//		if (deviceStatus.getBSSID().equals(this.deviceStatus.getBSSID())) {
 			if (getSherlockActivity() == null) {
 				Log.e(TAG, "activity is null");
 				return;
@@ -219,7 +220,7 @@ public class InfoFragment extends SherlockFragment {
 				}
 			});
 			
-		}
+//		}
 	}
 
 }

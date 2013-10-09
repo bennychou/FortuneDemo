@@ -127,6 +127,7 @@ public class ScanFragment extends SherlockFragment {
 			listView.setVisibility(View.GONE);
 		} else {
 			progressBar.setVisibility(View.GONE);
+			textNoDevice.setVisibility(View.GONE);
 			listView.setVisibility(View.VISIBLE);
 		}
 	}
@@ -156,7 +157,8 @@ public class ScanFragment extends SherlockFragment {
 				listView.setVisibility(View.GONE);
 			} else {
 				adapter = new ListAdapter(this.listAPStatus);
-				adapter.notifyDataSetChanged();
+				listView.setAdapter(adapter);
+				listView.setOnItemClickListener(itemClickListener);
 				
 				textNoDevice.setVisibility(View.GONE);
 				listView.setVisibility(View.VISIBLE);

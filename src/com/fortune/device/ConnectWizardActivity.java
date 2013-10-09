@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import android.annotation.SuppressLint;
@@ -131,7 +132,9 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 		Socket socket = null;
 		try {
 			socket = new Socket("192.168.1.1", 7008);
-
+//			socket.setReuseAddress(true);
+//			socket.bind(new InetSocketAddress("192.168.1.1", 7008));
+			socket.setSoTimeout(5000);
 			// -----µo°esocket--------
 			PrintWriter out = new PrintWriter(new BufferedWriter(
 					new OutputStreamWriter(socket.getOutputStream())),

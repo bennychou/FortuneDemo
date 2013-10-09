@@ -3,6 +3,9 @@ package com.fortune.device;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -85,6 +89,7 @@ public class DevicesFragment extends SherlockFragment {
 			adapter = new ListAdapter(listDeviceStatus);
 			listView.setAdapter(adapter);
 			listView.setOnItemClickListener(itemClickListener);
+			listView.setOnItemLongClickListener(itemLongClickListener);
 			
 			progressBar.setVisibility(View.GONE);
 			listView.setVisibility(View.VISIBLE);
@@ -99,6 +104,7 @@ public class DevicesFragment extends SherlockFragment {
 			adapter = new ListAdapter(listDeviceStatus);
 			listView.setAdapter(adapter);
 			listView.setOnItemClickListener(itemClickListener);
+			listView.setOnItemLongClickListener(itemLongClickListener);
 			
 			progressBar.setVisibility(View.GONE);
 			textNoDevice.setVisibility(View.GONE);
@@ -121,7 +127,7 @@ public class DevicesFragment extends SherlockFragment {
 						Log.e(TAG, "activity is null");
 						return;
 					}
-					
+
 					getSherlockActivity().runOnUiThread(new Runnable() {
 						
 						@Override
@@ -131,6 +137,27 @@ public class DevicesFragment extends SherlockFragment {
 						}
 					});
 					
+				} else {
+					oldDeviceStatus.setIP(deviceStatus.getIP());
+					oldDeviceStatus.setStatus(deviceStatus.getStatus());
+					oldDeviceStatus.setVolt(deviceStatus.getVolt());
+					oldDeviceStatus.setAmp(deviceStatus.getAmp());
+					
+					listDeviceStatus.set(i, oldDeviceStatus);
+					
+					if (getSherlockActivity() == null) {
+						Log.e(TAG, "activity is null");
+						return;
+					}
+
+					getSherlockActivity().runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							adapter.notifyDataSetChanged();
+						}
+					});
 				}
 			}
 		}
@@ -147,6 +174,39 @@ public class DevicesFragment extends SherlockFragment {
 			infoIntent.putExtra("DeviceStatus", listDeviceStatus.get(position));
 			
 			startActivity(infoIntent);
+		}
+	};
+	
+	OnItemLongClickListener itemLongClickListener = new OnItemLongClickListener() {
+
+		@Override
+		public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+				final int position, long arg3) {
+			// TODO Auto-generated method stub
+			Builder builder = new AlertDialog.Builder(getSherlockActivity());
+			builder.setTitle("Delete");
+			builder.setMessage("Do you want to delete this device?");
+			builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					activity.removeDevice(listDeviceStatus.get(position));
+					listDeviceStatus.remove(position);
+					adapter.notifyDataSetChanged();
+					
+					if (listDeviceStatus.size() == 0) {
+						textNoDevice.setVisibility(View.VISIBLE);
+						listView.setVisibility(View.GONE);
+					}
+			    }
+			});
+			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+			    }
+			});
+			builder.show();
+			
+			return true;
 		}
 	};
 	
