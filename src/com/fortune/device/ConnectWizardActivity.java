@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -131,7 +132,8 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 	public void configure(APStatus apStatus, String password) {	
 		Socket socket = null;
 		try {
-			socket = new Socket("192.168.1.1", 7008);
+			InetAddress serverAddr = InetAddress.getByName("192.168.1.1");
+			socket = new Socket(serverAddr, 7008);
 //			socket.setReuseAddress(true);
 //			socket.bind(new InetSocketAddress("192.168.1.1", 7008));
 			socket.setSoTimeout(5000);

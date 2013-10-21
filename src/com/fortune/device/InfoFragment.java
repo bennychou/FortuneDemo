@@ -169,8 +169,8 @@ public class InfoFragment extends SherlockFragment {
 				public void run() {
 					// TODO Auto-generated method stub
 					if (deviceStatus.getStatus() < 0) {
-						imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_configured));
-						switchStatus.setEnabled(false);
+//						imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_configured));
+//						switchStatus.setEnabled(false);
 					} else if (deviceStatus.getStatus() == 0) {
 						imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_off));
 						
@@ -212,11 +212,15 @@ public class InfoFragment extends SherlockFragment {
 						}
 					}
 			
-					textMac.setText(deviceStatus.getBSSID());
-					textIP.setText(deviceStatus.getIP());
-					textVolt.setText(Float.toString(deviceStatus.getVolt()));
-					textAmp.setText(Float.toString(deviceStatus.getAmp()));
-					textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp()));
+					if (deviceStatus.getStatus() < 0) {
+						textMac.setText(deviceStatus.getBSSID()+".");
+					} else {
+						textMac.setText(deviceStatus.getBSSID());
+						textIP.setText(deviceStatus.getIP());
+						textVolt.setText(Float.toString(deviceStatus.getVolt()));
+						textAmp.setText(Float.toString(deviceStatus.getAmp()));
+						textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp()));
+					}
 				}
 			});
 			

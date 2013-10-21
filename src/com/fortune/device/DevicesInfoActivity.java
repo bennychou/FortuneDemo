@@ -147,12 +147,16 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 	}
 	
 	public void sendTCPCommand(String IP, String command) {
+		if (udpThread != null) {
+			udpThread.stopThread();
+		}
 		Socket socket = null;
 		try {
-			socket = new Socket(IP, 9998);
+			InetAddress serverAddr = InetAddress.getByName(IP);
+			socket = new Socket(serverAddr, 9998);
 			socket.setReuseAddress(true);
 //			socket.bind(new InetSocketAddress(IP, 9998));
-			socket.setSoTimeout(5000);
+			socket.setSoTimeout(1000);
 
 			// -----發送socket--------
 			PrintWriter out = new PrintWriter(new BufferedWriter(
@@ -162,6 +166,7 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 			Log.i(TAG, command);
 			
 			out.println(command);
+			out.flush();
 			// -----/發送socket/--------
 
 			// -----接收socket--------
@@ -186,6 +191,14 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 					e.printStackTrace();
 				}
 		}
+		if (udpThread == null) {
+			udpThread = new UdpThread(DeviceActivity.UDP_PORT);
+			udpThread.start();
+		} else {
+			udpThread.stopThread();
+			udpThread = new UdpThread(DeviceActivity.UDP_PORT);
+			udpThread.start();
+		}
 	}
 	
 	@Override
@@ -203,39 +216,51 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 	class UdpThread extends Thread {
 		int udpPort;
 		boolean isRunning;
+		DatagramSocket ds;
 
 		public UdpThread(int udpPort) {
 			this.udpPort = udpPort;
 			isRunning = true;
+			ds = null;
 		}
 
 		public void stopThread() {
 			isRunning = false;
+			
+			if (ds != null)
+				ds.close();
 		}
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
 			super.run();
+			
+			String response;
+			
+			try {
+				ds = new DatagramSocket(null);
+				ds.setBroadcast(true);
+				ds.setReuseAddress(true);
+				ds.bind(new InetSocketAddress(udpPort));
+				ds.setSoTimeout(20000);
+			} catch (SocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			while (isRunning) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//				try {
+//					Thread.sleep(2000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 
-				String response;
-				byte[] msg = new byte[MAX_UDP_DATAGRAM_LEN];
-				DatagramPacket dp = new DatagramPacket(msg, msg.length);
-				DatagramSocket ds = null;
 				try {
-					ds = new DatagramSocket(null);
-					ds.setReuseAddress(true);
-					ds.bind(new InetSocketAddress(udpPort));
 					// disable timeout for testing
-					ds.setSoTimeout(5000);
+					byte[] msg = new byte[MAX_UDP_DATAGRAM_LEN];
+					DatagramPacket dp = new DatagramPacket(msg, msg.length);
 					ds.receive(dp);
 					response = new String(msg, 0, dp.getLength());
 					
@@ -274,7 +299,7 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 					}
 
 				} catch (SocketException e) {
-//					e.printStackTrace();
+					e.printStackTrace();
 					Log.e(TAG, "UDP socket error: "+e.toString());
 					
 					DeviceStatus deviceStatus = new DeviceStatus(null, 
@@ -289,7 +314,7 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 					message.setData(data);
 					mHandler.handleMessage(message);
 				} catch (IOException e) {
-//					e.printStackTrace();
+					e.printStackTrace();
 					Log.e(TAG, "UDP IO error: "+e.toString());
 					
 					DeviceStatus deviceStatus = new DeviceStatus(null, 
@@ -304,9 +329,9 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 					message.setData(data);
 					mHandler.handleMessage(message);
 				} finally {
-					if (ds != null) {
-						ds.close();
-					}
+//					if (ds != null) {
+//						ds.close();
+//					}
 				}
 			}
 		}
