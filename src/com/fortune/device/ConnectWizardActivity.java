@@ -151,18 +151,24 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 					apStatus.getSSID()+ "\n" +
 							"2\n"+
 							"1\n"+
-							password);
+							password + "\n" +
+							connection.getMacAddress() + "\n" +
+							connection.getSelfAddress());
 			// -----/發送socket/--------
 
 			// -----接收socket--------
-//			BufferedReader br = new BufferedReader(
-//					new InputStreamReader(socket.getInputStream()));
-//
-//			char[] m = new char[100];
-//			br.read(m);
-//			String rec_msg = new String(m);
-//
-//			Log.i(TAG, rec_msg);
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
+
+			char[] m = new char[100];
+			br.read(m);
+			String rec_msg = new String(m);
+
+			Log.i(TAG, rec_msg);
+			
+			if (rec_msg.contains("OK")) {
+				connection.connect(apStatus.getSSID(), apStatus.getBSSID(), password);
+			}
 			// -----/接收socket/--------
 
 		} catch (Exception e) {
@@ -344,7 +350,7 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 				}
 				count++;
 				
-				if (count >= 4) {
+				if (count >= 5) {
 					isRunning = false;
 					Message msg = new Message();
 					msg.what = configuredSuccessed;

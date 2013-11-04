@@ -1,7 +1,9 @@
 package com.fortune.device;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.DatagramPacket;
@@ -13,6 +15,10 @@ import java.net.SocketException;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +29,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
@@ -76,6 +83,11 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
         
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		MulticastLock multicastlock = wifiManager
+				.createMulticastLock("test-udp");
+		multicastlock.acquire();
+        
         if (android.os.Build.VERSION.SDK_INT > 9) {
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		    StrictMode.setThreadPolicy(policy);
@@ -91,10 +103,10 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case refreshDeviceStatus:
+				deviceStatus = (DeviceStatus) msg.getData().getSerializable("DeviceStatus");
+				
 				if (infof != null) {
-					infof.updateDeviceStatus( 
-							(DeviceStatus) msg.getData().getSerializable("DeviceStatus") 
-							);
+					infof.updateDeviceStatus(deviceStatus);
 				}
 				break;
 			}
@@ -170,14 +182,26 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 			// -----/發送socket/--------
 
 			// -----接收socket--------
-//			BufferedReader br = new BufferedReader(
-//					new InputStreamReader(socket.getInputStream()));
-//
-//			char[] m = new char[100];
-//			br.read(m);
-//			String rec_msg = new String(m);
-//
-//			Log.i(TAG, rec_msg);
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
+
+			char[] m = new char[100];
+			br.read(m);
+			String rec_msg = new String(m);
+
+			Log.i(TAG, rec_msg);
+			
+			if (rec_msg.contains("OK")) {
+				if (infof != null) {
+					if (command.substring(0, 1).equals("1")) {
+						deviceStatus.setStatus(1);
+						infof.updateOnOffStatus(true);
+					} else {
+						deviceStatus.setStatus(0);
+						infof.updateOnOffStatus(false);
+					}
+				}
+			}
 			// -----/接收socket/--------
 
 		} catch (Exception e) {
@@ -206,12 +230,34 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 		// TODO Auto-generated method stub
 		switch (item.getItemId()) {
 		case android.R.id.home:
+			Intent data = new Intent();
+			
+			Bundle extras = new Bundle();
+			extras.putSerializable("DeviceStatus", deviceStatus);
+			
+			data.putExtras(extras);
+			setResult(DeviceActivity.UPDATE_DEVICE_STATUS, data);
 			finish();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			Intent data = new Intent();
+			
+			Bundle extras = new Bundle();
+			extras.putSerializable("DeviceStatus", deviceStatus);
+			
+			data.putExtras(extras);
+			setResult(DeviceActivity.UPDATE_DEVICE_STATUS, data);
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
 	private static final int MAX_UDP_DATAGRAM_LEN = 1500;
 	class UdpThread extends Thread {
 		int udpPort;
@@ -226,9 +272,6 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 
 		public void stopThread() {
 			isRunning = false;
-			
-			if (ds != null)
-				ds.close();
 		}
 
 		@Override
@@ -261,7 +304,10 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 					// disable timeout for testing
 					byte[] msg = new byte[MAX_UDP_DATAGRAM_LEN];
 					DatagramPacket dp = new DatagramPacket(msg, msg.length);
-					ds.receive(dp);
+					
+					if (!ds.isClosed())
+						ds.receive(dp);
+					
 					response = new String(msg, 0, dp.getLength());
 					
 					String [] splitResponse = response.split("\n");
@@ -333,6 +379,10 @@ public class DevicesInfoActivity extends SherlockFragmentActivity {
 //						ds.close();
 //					}
 				}
+			}
+			
+			if (ds != null) {
+				ds.close();
 			}
 		}
 	}

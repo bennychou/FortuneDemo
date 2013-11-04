@@ -217,6 +217,11 @@ public class WifiConnection {
 		return wInfo.getBSSID();
 	}
 	
+	public String getMacAddress() {
+	    WifiInfo wifiInf = wifiManager.getConnectionInfo();
+	    return wifiInf.getMacAddress();
+	}
+	
 	public InetAddress getSelfAddress() throws IOException {
         DhcpInfo dhcp = wifiManager.getDhcpInfo();
         // handle null somehow

@@ -8,7 +8,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
@@ -20,7 +22,7 @@ public class InfoFragment extends SherlockFragment {
 	DevicesInfoActivity activity;
 	
 	ImageView imageStatus;
-	Switch switchStatus;
+	TextView textStatus;
 	
 	TextView textSSID;
 	TextView textMac;
@@ -33,8 +35,7 @@ public class InfoFragment extends SherlockFragment {
 	
 	Handler handler;
 	
-	boolean isSwitchByUser;
-	boolean isSwitchByCode;
+	boolean isChecked;
 	
 	final String TAG = "InfoFragment";
 	
@@ -69,8 +70,6 @@ public class InfoFragment extends SherlockFragment {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
-		isSwitchByUser = false;
-		isSwitchByCode = false;
 		handler = new Handler();
 		/* get arguments */
 		deviceStatus = (DeviceStatus) getArguments().getSerializable("DeviceStatus");
@@ -85,15 +84,15 @@ public class InfoFragment extends SherlockFragment {
 		
 		if (deviceStatus.getStatus() < 0) {
 			imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_configured));
-			switchStatus.setEnabled(false);
+			imageStatus.setEnabled(false);
 		} else if (deviceStatus.getStatus() == 0) {
 			imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_off));
-			switchStatus.setEnabled(true);
-			switchStatus.setChecked(false);
+			imageStatus.setEnabled(true);
+			isChecked = false;
 		} else if (deviceStatus.getStatus() == 1) {
 			imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_on));
-			switchStatus.setEnabled(true);
-			switchStatus.setChecked(true);
+			imageStatus.setEnabled(true);
+			isChecked = true;
 		}
 		
 		textSSID.setText(deviceStatus.getSSID());
@@ -110,7 +109,7 @@ public class InfoFragment extends SherlockFragment {
 		View view = getView();
 		
 		imageStatus = (ImageView) view.findViewById(R.id.image_status);
-		switchStatus = (Switch) view.findViewById(R.id.switch_sataus);
+		textStatus = (TextView) view.findViewById(R.id.text_status);
 		
 		textSSID = (TextView) view.findViewById(R.id.text_ssid);
 		textMac = (TextView) view.findViewById(R.id.text_mac);
@@ -121,18 +120,14 @@ public class InfoFragment extends SherlockFragment {
 	}
 	
 	private void setListener() {
-		switchStatus.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		imageStatus.setOnClickListener(new OnClickListener() {
 			
 			@Override
-			public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				if (isSwitchByCode) {
-					isSwitchByCode = false;
-					return;
-				}
-				
-				switchStatus.setEnabled(false);
-				isSwitchByUser = true;
+				v.startAnimation(AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.image_click));
+				textStatus.setText("Processing...");
+				imageStatus.setClickable(false);
 				
 				Runnable sendTCPRunnable = new Runnable() {
 					
@@ -141,9 +136,9 @@ public class InfoFragment extends SherlockFragment {
 						// TODO Auto-generated method stub
 						if (activity != null) {
 							if (isChecked) {
-								activity.sendTCPCommand(deviceStatus.getIP(), "1\n10\n");
-							} else {
 								activity.sendTCPCommand(deviceStatus.getIP(), "0\n10\n");
+							} else {
+								activity.sendTCPCommand(deviceStatus.getIP(), "1\n10\n");
 							}
 						}
 					}
@@ -155,7 +150,32 @@ public class InfoFragment extends SherlockFragment {
 		});
 	}
 	
-	int countFailed = 0;
+	public void updateOnOffStatus(final boolean isOn) {
+		if (getSherlockActivity() == null) {
+			Log.e(TAG, "activity is null");
+			return;
+		}
+		
+		getSherlockActivity().runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				if (isOn) {
+					imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_on));
+					imageStatus.setClickable(true);
+					isChecked = true;
+					textStatus.setText("");
+				} else {
+					imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_off));
+					imageStatus.setClickable(true);
+					isChecked = false;
+					textStatus.setText("");
+				}
+			}
+		});
+	}
+	
 	public void updateDeviceStatus(final DeviceStatus deviceStatus) {
 //		if (deviceStatus.getBSSID().equals(this.deviceStatus.getBSSID())) {
 			if (getSherlockActivity() == null) {
@@ -168,59 +188,39 @@ public class InfoFragment extends SherlockFragment {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
+					imageStatus.setOnClickListener(null);
 					if (deviceStatus.getStatus() < 0) {
 //						imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_configured));
 //						switchStatus.setEnabled(false);
 					} else if (deviceStatus.getStatus() == 0) {
 						imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_off));
-						
-						if (isSwitchByUser) {
-							if (!switchStatus.isChecked()) {
-								isSwitchByUser = false;
-								switchStatus.setEnabled(true);
-							} else {
-								countFailed++;
-							}
-							
-							if (countFailed > 5) {
-								countFailed = 0;
-								isSwitchByCode = true;
-								isSwitchByUser = false;
-								switchStatus.setEnabled(true);
-								switchStatus.setChecked(false);
-							}
-						}
+						imageStatus.setClickable(true);
+						isChecked = false;
+						textStatus.setText("");
 					} else if (deviceStatus.getStatus() == 1) {
 						imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_on));
-						switchStatus.setEnabled(true);
-						
-						if (isSwitchByUser) {
-							if (switchStatus.isChecked()) {
-								isSwitchByUser = false;
-								switchStatus.setEnabled(true);
-							} else {
-								countFailed++;
-							}
-							
-							if (countFailed > 5) {
-								countFailed = 0;
-								isSwitchByCode = true;
-								isSwitchByUser = false;
-								switchStatus.setEnabled(true);
-								switchStatus.setChecked(true);
-							}
-						}
+						imageStatus.setClickable(true);
+						isChecked = true;
+						textStatus.setText("");
 					}
 			
 					if (deviceStatus.getStatus() < 0) {
-						textMac.setText(deviceStatus.getBSSID()+".");
+						textSSID.setText(textSSID.getText().toString().replace(".", "")+".");
 					} else {
+						textSSID.setText(textSSID.getText().toString().replace(".", ""));
 						textMac.setText(deviceStatus.getBSSID());
 						textIP.setText(deviceStatus.getIP());
-						textVolt.setText(Float.toString(deviceStatus.getVolt()));
-						textAmp.setText(Float.toString(deviceStatus.getAmp()));
-						textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp()));
+						textVolt.setText(Float.toString(deviceStatus.getVolt())+ " V");
+						textAmp.setText(Float.toString(deviceStatus.getAmp())+ " mA");
+						
+						if (deviceStatus.getVolt() == -1 &&
+								deviceStatus.getAmp() == -1)
+							textWatt.setText("-1"+ " mW");
+						else
+							textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp())+ " mW");
 					}
+					
+					setListener();
 				}
 			});
 			

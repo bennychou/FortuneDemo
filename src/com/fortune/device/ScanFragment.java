@@ -95,10 +95,16 @@ public class ScanFragment extends SherlockFragment {
 		progressBar = (ProgressBar) getView().findViewById(R.id.progressBar);
 		textNoDevice = (TextView) getView().findViewById(R.id.text_no_device);
 		listView = (ListView) getView().findViewById(R.id.list_devices);
-		
-		connection.startScan(true);
 	}
 	
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		if (connection != null)
+			connection.startScan(true);
+	}
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		// TODO Auto-generated method stub
@@ -129,6 +135,12 @@ public class ScanFragment extends SherlockFragment {
 			progressBar.setVisibility(View.GONE);
 			textNoDevice.setVisibility(View.GONE);
 			listView.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	public void scan() {
+		if (connection != null) {
+			connection.startScan(true);
 		}
 	}
 	

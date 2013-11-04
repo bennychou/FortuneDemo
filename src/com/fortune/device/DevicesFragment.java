@@ -173,7 +173,7 @@ public class DevicesFragment extends SherlockFragment {
 			infoIntent.setClass(getSherlockActivity(), DevicesInfoActivity.class);
 			infoIntent.putExtra("DeviceStatus", listDeviceStatus.get(position));
 			
-			startActivity(infoIntent);
+			startActivityForResult(infoIntent, DeviceActivity.UPDATE_DEVICE_STATUS);
 		}
 	};
 	

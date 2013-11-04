@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.Menu;
 
@@ -49,6 +50,7 @@ public class DeviceActivity extends SherlockFragmentActivity {
 	public static final String CONFIG_DEVICES = "CONFIG_DEVICES";
 	public static final int CONNECT_CONFIG = 0;
 	public static final int CONNECT_CONFIG_SUCCESSED = 1;
+	public static final int UPDATE_DEVICE_STATUS = 2;
 	
 	public static final int DEVICES = 0;
 	public static final int SCAN = 1;
@@ -75,6 +77,7 @@ public class DeviceActivity extends SherlockFragmentActivity {
 		adapter = new ClusterFragmentPagerAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
+        indicator.setOnPageChangeListener(pageChangeListener);
         
         WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		MulticastLock multicastlock = wifiManager
@@ -147,6 +150,17 @@ public class DeviceActivity extends SherlockFragmentActivity {
 				udpThread = new UdpThread(UDP_PORT);
 				udpThread.start();
 			}
+			break;
+			
+		case UPDATE_DEVICE_STATUS:
+			Message message = new Message();
+			message.what = refreshDeviceStatus;
+			
+			Bundle datas = new Bundle();
+			datas.putSerializable("DeviceStatus", data.getExtras().getSerializable("DeviceStatus"));
+			
+			message.setData(datas);
+			mHandler.handleMessage(message);
 			break;
 		}
 	}
@@ -245,6 +259,31 @@ public class DeviceActivity extends SherlockFragmentActivity {
 		return super.onCreateOptionsMenu(menu);
 	}
 	
+	OnPageChangeListener pageChangeListener = new OnPageChangeListener() {
+		
+		@Override
+		public void onPageSelected(int index) {
+			// TODO Auto-generated method stub
+			if (index == SCAN) {
+				if (sf != null) {
+					sf.scan();
+				}
+			}
+		}
+		
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
+	
 	private static final int MAX_UDP_DATAGRAM_LEN = 1500;
 	class UdpThread extends Thread {
 		int udpPort;
@@ -260,9 +299,9 @@ public class DeviceActivity extends SherlockFragmentActivity {
 		public void stopThread() {
 			isRunning = false;
 			
-			if (ds != null) {
-				ds.close();
-			}
+//			if (ds != null) {
+//				ds.close();
+//			}
 		}
 
 		@Override
@@ -297,7 +336,10 @@ public class DeviceActivity extends SherlockFragmentActivity {
 					// disable timeout for testing
 					byte[] msg = new byte[MAX_UDP_DATAGRAM_LEN];
 					DatagramPacket dp = new DatagramPacket(msg, msg.length);
-					ds.receive(dp);
+					
+					if (!ds.isClosed())
+						ds.receive(dp);
+					
 					response = new String(msg, 0, dp.getLength());
 					
 					String [] splitResponse = response.split("\n");
@@ -369,6 +411,10 @@ public class DeviceActivity extends SherlockFragmentActivity {
 //						ds.close();
 //					}
 				}
+			}
+			
+			if (ds != null) {
+				ds.close();
 			}
 		}
 	}
