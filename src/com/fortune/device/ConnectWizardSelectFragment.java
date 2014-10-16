@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -50,6 +53,8 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 	TableRow tableRowWep;
 	TableRow tableRowPassword;
 	
+	SharedPreferences passwordPreferences;
+	
 	Handler handler;
 	public static ConnectWizardSelectFragment newInstance() {
 		ConnectWizardSelectFragment cwsf = new ConnectWizardSelectFragment();
@@ -89,6 +94,8 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
+		
+		passwordPreferences = getSherlockActivity().getSharedPreferences("AP_PASSWORD", Context.MODE_PRIVATE);
 		
 		findViews();
 		
@@ -136,9 +143,25 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-						activity.configure(
-								listAPStatus.get(spinnerSSID.getSelectedItemPosition()),
-								editPassword.getText().toString());
+						if (cbxShow.isShown()) {
+							Editor editor = passwordPreferences.edit();
+							editor.putString(listAPStatus.get(spinnerSSID.getSelectedItemPosition()).getBSSID(),
+									editPassword.getText().toString());
+							editor.commit();
+							
+							activity.configure(
+									listAPStatus.get(spinnerSSID.getSelectedItemPosition()),
+									editPassword.getText().toString());
+						} else {
+							Editor editor = passwordPreferences.edit();
+							editor.putString(listAPStatus.get(spinnerSSID.getSelectedItemPosition()).getBSSID(),
+									"");
+							editor.commit();
+							
+							activity.configure(
+									listAPStatus.get(spinnerSSID.getSelectedItemPosition()),
+									"");
+						}
 					}
 				};
 				
@@ -154,8 +177,10 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 					boolean isChecked) {
 				if (isChecked) {
 					editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+					editPassword.setSelection(editPassword.getText().length());
 				} else {
 					editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+					editPassword.setSelection(editPassword.getText().length());
 				}
 			}
 		});
@@ -204,7 +229,15 @@ public class ConnectWizardSelectFragment extends SherlockFragment {
 		public void onItemSelected(AdapterView<?> arg0, View arg1, int position,
 				long arg3) {
 			// TODO Auto-generated method stub
+			// set the mac
 			textMac.setText(listAPStatus.get(position).getBSSID());
+			// set the password
+			String password = passwordPreferences.getString(listAPStatus.get(position).getBSSID(), "");
+			
+			if (!password.equals("")) {
+				editPassword.setText(password);
+				editPassword.setSelection(editPassword.getText().length());
+			}
 			// set the security
 			if (listAPStatus.get(position).getCapabilities().contains("WPA2")) {
 				if (listAPStatus.get(position).getCapabilities().replace("WPA2", "").contains("WPA")) {

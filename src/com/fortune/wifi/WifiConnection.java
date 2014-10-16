@@ -2,9 +2,11 @@ package com.fortune.wifi;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -220,6 +222,30 @@ public class WifiConnection {
 	public String getMacAddress() {
 	    WifiInfo wifiInf = wifiManager.getConnectionInfo();
 	    return wifiInf.getMacAddress();
+	}
+	
+	public String getIPAddress() {
+	       WifiInfo wifiInf = wifiManager.getConnectionInfo();
+	       long ip = wifiInf.getIpAddress();
+	       if( ip != 0 )
+	              return String.format( "%d.%d.%d.%d",
+	                     (ip & 0xff),
+	                     (ip >> 8 & 0xff),
+	                     (ip >> 16 & 0xff),
+	                     (ip >> 24 & 0xff));
+	       try {
+	              for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+	                     NetworkInterface intf = en.nextElement();
+	                     for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+	                            InetAddress inetAddress = enumIpAddr.nextElement();
+	                            if (!inetAddress.isLoopbackAddress()) {
+	                                   return inetAddress.getHostAddress().toString();
+	                            }
+	                     }
+	              }
+	       } catch (Exception e) {
+	        }
+	       return "0.0.0.0";
 	}
 	
 	public InetAddress getSelfAddress() throws IOException {

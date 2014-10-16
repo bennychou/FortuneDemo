@@ -23,8 +23,9 @@ public class MainActivity extends Activity {
 	
 	WifiConnection connection;
 	
-	public static final String DEVICE_KEYWORD = "IOT_Fortune_";
+	public static final String DEVICE_KEYWORD = "IOT";
 	public static final String DEVICE_PASSWORD = "1234567890";
+	public static final String MULTICASTLOCK_TAG = "FORTUNE_UDP";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +61,10 @@ public class MainActivity extends Activity {
 					boolean isChecked) {
 				if (isChecked) {
 					editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+					editPassword.setSelection(editPassword.getText().length());
 				} else {
 					editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+					editPassword.setSelection(editPassword.getText().length());
 				}
 			}
 		});

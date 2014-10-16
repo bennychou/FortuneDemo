@@ -103,7 +103,7 @@ public class ConnectWizardConfiguringFragment extends SherlockFragment {
 			buttonNext.setVisibility(View.VISIBLE);
 			buttonNext.setEnabled(true);
 			progressBar.setVisibility(View.GONE);
-			textConfiguring.setText("Successed!");
+			textConfiguring.setText("Succeed!");
 		} else {
 			
 		}

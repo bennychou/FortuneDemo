@@ -38,10 +38,9 @@ public class DeviceActivity extends SherlockFragmentActivity {
 	TabPageIndicator indicator;
 	FragmentPagerAdapter adapter;
 	
-	public DevicesFragment df;
-	public ScanFragment sf;
+	public static DevicesFragment df;
+	public static ScanFragment sf;
 	
-//	SharedPreferences devicesPrefs;
 	DeviceDBHelper deviceDBHelper;
 	
 	UdpThread udpThread;
@@ -69,7 +68,6 @@ public class DeviceActivity extends SherlockFragmentActivity {
 		
 		setProgressBarIndeterminateVisibility(false);
 		
-//		devicesPrefs = getSharedPreferences(TAG, MODE_PRIVATE);
 		deviceDBHelper = new DeviceDBHelper(this);
 		
 		findViews();
@@ -81,12 +79,12 @@ public class DeviceActivity extends SherlockFragmentActivity {
         
         WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		MulticastLock multicastlock = wifiManager
-				.createMulticastLock("test-udp");
+				.createMulticastLock(MainActivity.MULTICASTLOCK_TAG);
 		multicastlock.acquire();
 	}
 	
-	final int refreshDeviceStatus = 1;
-	Handler mHandler = new Handler() {
+	static final int refreshDeviceStatus = 1;
+	public static Handler mHandler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
@@ -380,32 +378,32 @@ public class DeviceActivity extends SherlockFragmentActivity {
 					e.printStackTrace();
 					Log.e(TAG, "UDP socket error: "+e.toString());
 					
-//					DeviceStatus deviceStatus = new DeviceStatus(null, 
-//							"", null, "", 0.0f, 0.0f, -1, -1);
-//					
-//					Message message = new Message();
-//					message.what = refreshDeviceStatus;
-//					
-//					Bundle data = new Bundle();
-//					data.putSerializable("DeviceStatus", deviceStatus);
-//					
-//					message.setData(data);
-//					mHandler.handleMessage(message);
+					DeviceStatus deviceStatus = new DeviceStatus(null, 
+							"", null, "", 0.0f, 0.0f, -1, -1);
+					
+					Message message = new Message();
+					message.what = refreshDeviceStatus;
+					
+					Bundle data = new Bundle();
+					data.putSerializable("DeviceStatus", deviceStatus);
+					
+					message.setData(data);
+					mHandler.handleMessage(message);
 				} catch (IOException e) {
 //					e.printStackTrace();
 					Log.e(TAG, "UDP IO error: "+e.toString());
 					
-//					DeviceStatus deviceStatus = new DeviceStatus(null, 
-//							"", null, "", 0.0f, 0.0f, -1, -1);
-//					
-//					Message message = new Message();
-//					message.what = refreshDeviceStatus;
-//					
-//					Bundle data = new Bundle();
-//					data.putSerializable("DeviceStatus", deviceStatus);
-//					
-//					message.setData(data);
-//					mHandler.handleMessage(message);
+					DeviceStatus deviceStatus = new DeviceStatus(null, 
+							"", null, "", 0.0f, 0.0f, -1, -1);
+					
+					Message message = new Message();
+					message.what = refreshDeviceStatus;
+					
+					Bundle data = new Bundle();
+					data.putSerializable("DeviceStatus", deviceStatus);
+					
+					message.setData(data);
+					mHandler.handleMessage(message);
 				} finally {
 //					if (ds != null) {
 //						ds.close();

@@ -35,6 +35,9 @@ public class InfoFragment extends SherlockFragment {
 	
 	Handler handler;
 	
+	float oldAmp;
+	float oldWatt;
+	
 	boolean isChecked;
 	
 	final String TAG = "InfoFragment";
@@ -73,6 +76,10 @@ public class InfoFragment extends SherlockFragment {
 		handler = new Handler();
 		/* get arguments */
 		deviceStatus = (DeviceStatus) getArguments().getSerializable("DeviceStatus");
+		
+		/* initialize parameter */
+		oldAmp = 0.0f;
+		oldWatt = 0.0f;
 	}
 
 	@Override
@@ -98,9 +105,9 @@ public class InfoFragment extends SherlockFragment {
 		textSSID.setText(deviceStatus.getSSID());
 		textMac.setText(deviceStatus.getBSSID());
 		textIP.setText(deviceStatus.getIP());
-		textVolt.setText(Float.toString(deviceStatus.getVolt()));
-		textAmp.setText(Float.toString(deviceStatus.getAmp()));
-		textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp()));
+		textVolt.setText(Float.toString(deviceStatus.getVolt())+" V");
+		textAmp.setText(Float.toString(deviceStatus.getAmp())+" mA");
+		textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp())+" mW");
 		
 		setListener();
 	}
@@ -166,11 +173,15 @@ public class InfoFragment extends SherlockFragment {
 					imageStatus.setClickable(true);
 					isChecked = true;
 					textStatus.setText("");
+					textAmp.setText(oldAmp+" mA");
+					textWatt.setText(oldWatt+" mW");
 				} else {
 					imageStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_light_off));
 					imageStatus.setClickable(true);
 					isChecked = false;
 					textStatus.setText("");
+					textAmp.setText("0.0 mA");
+					textWatt.setText("0.0 mW");
 				}
 			}
 		});
@@ -211,13 +222,21 @@ public class InfoFragment extends SherlockFragment {
 						textMac.setText(deviceStatus.getBSSID());
 						textIP.setText(deviceStatus.getIP());
 						textVolt.setText(Float.toString(deviceStatus.getVolt())+ " V");
-						textAmp.setText(Float.toString(deviceStatus.getAmp())+ " mA");
-						
-						if (deviceStatus.getVolt() == -1 &&
-								deviceStatus.getAmp() == -1)
-							textWatt.setText("-1"+ " mW");
-						else
-							textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp())+ " mW");
+						if (deviceStatus.getStatus() == 1) {
+							oldAmp = deviceStatus.getAmp();
+							textAmp.setText(Float.toString(deviceStatus.getAmp())+ " mA");
+							
+							if (deviceStatus.getVolt() == -1 &&
+									deviceStatus.getAmp() == -1)
+								textWatt.setText("-1"+ " mW");
+							else {
+								oldWatt = deviceStatus.getVolt()*deviceStatus.getAmp();
+								textWatt.setText(Float.toString(deviceStatus.getVolt()*deviceStatus.getAmp())+ " mW");
+							}
+						} else {
+							textAmp.setText("0.0 mA");
+							textWatt.setText("0.0 mW");
+						}
 					}
 					
 					setListener();

@@ -75,6 +75,7 @@ public class ConnectWizardDetailFragment extends SherlockFragment {
 		textSSID.setText(apStatus.getSSID());
 		textMac.setText(apStatus.getBSSID());
 		editPassword.setText(MainActivity.DEVICE_PASSWORD);
+		editPassword.setSelection(editPassword.getText().length());
 		
 		setListeners();
 	}
@@ -117,8 +118,10 @@ public class ConnectWizardDetailFragment extends SherlockFragment {
 					boolean isChecked) {
 				if (isChecked) {
 					editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+					editPassword.setSelection(editPassword.getText().length());
 				} else {
 					editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+					editPassword.setSelection(editPassword.getText().length());
 				}
 			}
 		});

@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import org.holoeverywhere.widget.Toast;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -96,6 +98,7 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 	
 	final int switchPage = 0;
 	final int configuredSuccessed = 1;
+	final int toastMsg = 2;
 	private Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -107,6 +110,10 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 				if (cwcof != null) {
 					cwcof.setConfiguredResult(true);
 				}
+				break;
+				
+			case toastMsg:
+				Toast.makeText(ConnectWizardActivity.this, msg.getData().getString("msg"), Toast.LENGTH_LONG).show();				
 				break;
 			}
 		}
@@ -130,6 +137,7 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 	}
 	
 	public void configure(APStatus apStatus, String password) {	
+		boolean isGetOK = false;
 		Socket socket = null;
 		try {
 			InetAddress serverAddr = InetAddress.getByName("192.168.1.1");
@@ -152,8 +160,8 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 							"2\n"+
 							"1\n"+
 							password + "\n" +
-							connection.getMacAddress() + "\n" +
-							connection.getSelfAddress());
+							connection.getMacAddress().replace(":", "") + "\n" +
+							connection.getIPAddress());
 			// -----/發送socket/--------
 
 			// -----接收socket--------
@@ -166,7 +174,18 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 
 			Log.i(TAG, rec_msg);
 			
+			Message msg = new Message();
+			msg.what = toastMsg;
+			
+			Bundle bundle = new Bundle();
+			bundle.putString("msg", rec_msg);
+			
+			msg.setData(bundle);
+			mHandler.sendMessage(msg);
+			
 			if (rec_msg.contains("OK")) {
+				isGetOK = true;
+				Thread.sleep(1000L);
 				connection.connect(apStatus.getSSID(), apStatus.getBSSID(), password);
 			}
 			// -----/接收socket/--------
@@ -181,6 +200,16 @@ public class ConnectWizardActivity extends SherlockFragmentActivity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			if (!isGetOK) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				connection.connect(apStatus.getSSID(), apStatus.getBSSID(), password);
+			}
 		}
 	}
 	
